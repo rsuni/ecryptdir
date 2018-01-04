@@ -16,7 +16,8 @@ import (
 )
 
 type Config struct {
-	Key string
+	//Secret key
+	Key       string
 	Directory string
 }
 
