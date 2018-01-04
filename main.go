@@ -15,6 +15,10 @@ import (
 	"github.com/atotto/clipboard"
 )
 
+type Config struct {
+	Key string
+}
+
 func main() {
 
 	//Commands
