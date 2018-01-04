@@ -17,6 +17,7 @@ import (
 
 type Config struct {
 	Key string
+	Directory string
 }
 
 func main() {
