@@ -5,10 +5,12 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -24,21 +26,22 @@ type Config struct {
 func main() {
 
 	//Commands
-	createConfigFileCommand := flag.Bool("create-config", false, "Command Create config file create default config file.")
-	encryptCommand := flag.Bool("e", false, "Encrypt files")
-	decryptCommand := flag.Bool("d", false, "Decrypt files")
-	generateKeyCommand := flag.Bool("k", false, "Generate key")
+	ccCommand := flag.Bool("cc", false, "Create config command: create default config file.")
+	eCommand := flag.Bool("e", false, "Encrypt files command")
+	dCommand := flag.Bool("d", false, "Decrypt files command")
+	gkCommand := flag.Bool("gk", false, "Generate key command")
 
 	//Settings
-	configFileName := flag.String("config", "", "Config file include app settings.")
+	configFileName := flag.String("config", "./config.json", "Config file include app settings.")
+	//key := flag.String("key", "", "Key")
 
 	flag.Parse()
 
-	if *createConfigFileCommand {
+	if *ccCommand {
 		createConfigFile()
 		return
 	}
-	if *generateKeyCommand {
+	if *gkCommand {
 		key, _ := GenerateRandomString(32)
 		clipboard.WriteAll((key))
 		log.Println("Key generated, show clipboard")
@@ -50,15 +53,39 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *encryptCommand {
+	if _, err := os.Stat(*configFileName); os.IsNotExist(err) {
+		fmt.Println("Error, config file does not exists")
+		os.Exit(1)
+	}
+
+	config := getConfig()
+
+	if config.Directory == "" {
+		fmt.Println("Error, directory is not specified")
+		os.Exit(1)
+	}
+
+	if *eCommand {
 		encrypt()
 		return
 	}
-	if *decryptCommand {
+	if *dCommand {
 		decrypt()
 		return
 	}
 	return
+}
+
+func getConfig() Config {
+	raw, err := ioutil.ReadFile("./config.json")
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+
+	var c Config
+	json.Unmarshal(raw, &c)
+	return c
 }
 
 func createConfigFile() {
@@ -126,8 +153,16 @@ func GenerateRandomString(length int) (string, error) {
 	b, err := GenerateRandomBytes(length)
 	key := base64.URLEncoding.EncodeToString(b)
 
-	if len(key) > 32 {
-		key = key[0:31]
+	if len(key) > length {
+		key = key[0:length]
 	}
 	return key, err
+}
+
+func CheckError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	return
 }
