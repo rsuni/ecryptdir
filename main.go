@@ -13,6 +13,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/atotto/clipboard"
 )
@@ -32,8 +34,8 @@ func main() {
 	gkCommand := flag.Bool("gk", false, "Generate key command")
 
 	//Settings
-	configFileName := flag.String("config", "./config.json", "Config file include app settings.")
-	//key := flag.String("key", "", "Key")
+	configFileName := flag.String("config", "./config.json", "Config file name include app settings.")
+	fileFindRule := flag.String("find", "", "What find f.e. file1*")
 
 	flag.Parse()
 
@@ -64,6 +66,17 @@ func main() {
 		fmt.Println("Error, directory is not specified")
 		os.Exit(1)
 	}
+	if config.Key == "" {
+		fmt.Println("Error, key is not specified")
+		os.Exit(1)
+	}
+
+	if *fileFindRule == "" {
+		fmt.Println("Error, what find is not specified")
+		os.Exit(1)
+	}
+	files, _ := FindFiles(config.Directory, *fileFindRule)
+	_ = files
 
 	if *eCommand {
 		encrypt()
@@ -74,6 +87,28 @@ func main() {
 		return
 	}
 	return
+}
+
+func FindFiles(directory, whatFind string) ([]string, error) {
+	filesFinded := []string{}
+
+	last := string(whatFind[len(whatFind)-1])
+	if last == "*" {
+		whatFind = whatFind[:len(whatFind)-1]
+	}
+
+	files, err := ioutil.ReadDir(directory)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, f := range files {
+		if !f.IsDir() && strings.HasPrefix(f.Name(), whatFind) {
+			filesFinded = append(filesFinded, filepath.Join(directory, f.Name()))
+		}
+	}
+
+	return filesFinded, nil
 }
 
 func getConfig() Config {
