@@ -33,7 +33,7 @@ func TestGetConfig(t *testing.T) {
 	config := getConfig()
 
 	if config.Key == "" {
-		t.Fatal("config doesnt contain key value")
+		t.Fatal("config doesnt contain key value.")
 	}
 
 	return
