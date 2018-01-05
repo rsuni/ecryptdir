@@ -5,7 +5,7 @@ import (
 )
 
 func TestEncryptDecrypt(t *testing.T) {
-	key, err := GenerateRandomString(64) //16,24,32
+	key, err := GenerateRandomString(32) //16,24,32
 	CheckErrorTest(t, err)
 	text, err := GenerateRandomString(32)
 	CheckErrorTest(t, err)
@@ -38,6 +38,19 @@ func TestGetConfig(t *testing.T) {
 
 	return
 }
+func TestFindFiles(t *testing.T) {
+	config := getConfig()
+
+	files, err := FindFiles(config.Directory, "file*")
+	CheckErrorTest(t, err)
+
+	if len(files) == 0 {
+		t.Fatal("dont find files.")
+	}
+
+	return
+}
+
 func CheckErrorTest(t *testing.T, err error) {
 	if err != nil {
 		t.Fatal(err)
