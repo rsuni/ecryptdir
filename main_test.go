@@ -28,6 +28,16 @@ func TestEncryptDecrypt(t *testing.T) {
 	t.Log("Encrypt decrypt test ok")
 	return
 }
+
+func TestGetConfig(t *testing.T) {
+	config := getConfig()
+
+	if config.Key == "" {
+		t.Fatal("config doesnt contain key value")
+	}
+
+	return
+}
 func CheckErrorTest(t *testing.T, err error) {
 	if err != nil {
 		t.Fatal(err)
