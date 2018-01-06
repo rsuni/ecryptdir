@@ -12,10 +12,10 @@ func TestEncryptDecrypt(t *testing.T) {
 	key2 := []byte(key)
 	text2 := []byte(text)
 
-	result1, err := EncryptText(key2, text2)
+	result1, err := encryptText(key2, text2)
 	CheckErrorTest(t, err)
 
-	result2, err := DecryptText(key2, result1)
+	result2, err := decryptText(key2, result1)
 	CheckErrorTest(t, err)
 
 	text3 := string(result2)
