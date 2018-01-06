@@ -25,6 +25,8 @@ type Config struct {
 	Directory string
 }
 
+var config Config
+
 func main() {
 
 	//Commands
@@ -60,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	config := getConfig()
+	config = getConfig()
 
 	if config.Directory == "" {
 		fmt.Println("Error, directory is not specified")
@@ -79,11 +81,11 @@ func main() {
 	_ = files
 
 	if *eCommand {
-		encrypt()
+		encrypt(files)
 		return
 	}
 	if *dCommand {
-		decrypt()
+		decrypt(files)
 		return
 	}
 	return
@@ -112,12 +114,12 @@ func FindFiles(directory, whatFind string) ([]string, error) {
 }
 
 func getConfig() Config {
-	raw, err := ioutil.ReadFile("./config.json")
+
+	raw, err := readFile("./config.json")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
-
 	var c Config
 	json.Unmarshal(raw, &c)
 	return c
@@ -127,16 +129,49 @@ func createConfigFile() {
 
 	return
 }
-func encrypt() {
+func encrypt(files []string) {
+
+	for _, file := range files {
+		encryptSingleFile(file)
+	}
+
 	log.Println("encrypted")
 	return
 }
-func decrypt() {
-	log.Println("decrypted")
+func encryptSingleFile(fileName string) {
+	raw, err := readFile(fileName)
+	checkError(err)
+
+	result, err := encryptText([]byte(config.Key), raw)
+	checkError(err)
+
+	err = ioutil.WriteFile(fileName, result, 0644)
+	checkError(err)
+
 	return
 }
 
-func EncryptText(key, text []byte) ([]byte, error) {
+func decrypt(files []string) {
+	for _, file := range files {
+		decryptSingleFile(file)
+	}
+
+	log.Println("decrypted")
+	return
+}
+func decryptSingleFile(fileName string) {
+	raw, err := readFile(fileName)
+	checkError(err)
+
+	result, err := decryptText([]byte(config.Key), raw)
+	checkError(err)
+
+	err = ioutil.WriteFile(fileName, result, 0644)
+	checkError(err)
+
+	return
+}
+func encryptText(key, text []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -153,7 +188,7 @@ func EncryptText(key, text []byte) ([]byte, error) {
 }
 
 //Decrypt symetric decrypt text by key
-func DecryptText(key, text []byte) ([]byte, error) {
+func decryptText(key, text []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -194,10 +229,17 @@ func GenerateRandomString(length int) (string, error) {
 	return key, err
 }
 
-func CheckError(err error) {
+func checkError(err error) {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	return
+}
+func readFile(fileName string) ([]byte, error) {
+	raw, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return nil, nil
+	}
+	return raw, nil
 }
