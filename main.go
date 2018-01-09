@@ -50,11 +50,11 @@ func main() {
 	}
 
 	if *ccCommand {
-		createConfigFile()
+		createConfigFile("config.json")
 		return
 	}
 	if *gkCommand {
-		key, _ := GenerateRandomString(32)
+		key, _ := generateRandomString(32)
 		clipboard.WriteAll((key))
 		log.Println("Key generated, show clipboard")
 		return
@@ -133,8 +133,21 @@ func getConfig() Config {
 	return c
 }
 
-func createConfigFile() {
+func createConfigFile(fileName string) {
 
+	var err error
+	if _, err = os.Stat(fileName); err == nil {
+		return
+	}
+
+	c := Config{}
+	c.Key, err = generateRandomString(32)
+	b, err := json.Marshal(c)
+	if err != nil {
+		fmt.Printf("Error: %s", err)
+		return
+	}
+	err = saveFile(fileName, b)
 	return
 }
 func encrypt(files []string) {
@@ -174,7 +187,7 @@ func decryptSingleFile(fileName string) {
 	result, err := decryptText([]byte(config.Key), raw)
 	checkError(err)
 
-	err = ioutil.WriteFile(fileName, result, 0644)
+	err = saveFile(fileName, result)
 	checkError(err)
 
 	return
@@ -195,7 +208,6 @@ func encryptText(key, text []byte) ([]byte, error) {
 	return ciphertext, nil
 }
 
-//Decrypt symetric decrypt text by key
 func decryptText(key, text []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -215,8 +227,7 @@ func decryptText(key, text []byte) ([]byte, error) {
 	return data, nil
 }
 
-//GenerateRandomKey generate random key by definied length
-func GenerateRandomBytes(length int) ([]byte, error) {
+func generateRandomBytes(length int) ([]byte, error) {
 
 	key := make([]byte, length)
 	_, err := rand.Read(key) //generate random key
@@ -227,8 +238,8 @@ func GenerateRandomBytes(length int) ([]byte, error) {
 	return key, nil
 }
 
-func GenerateRandomString(length int) (string, error) {
-	b, err := GenerateRandomBytes(length)
+func generateRandomString(length int) (string, error) {
+	b, err := generateRandomBytes(length)
 	key := base64.URLEncoding.EncodeToString(b)
 
 	if len(key) > length {
@@ -250,4 +261,13 @@ func readFile(fileName string) ([]byte, error) {
 		return nil, nil
 	}
 	return raw, nil
+}
+func saveFile(fileName string, content []byte) error {
+
+	err := ioutil.WriteFile(fileName, content, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

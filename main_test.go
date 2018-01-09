@@ -5,9 +5,9 @@ import (
 )
 
 func TestEncryptDecrypt(t *testing.T) {
-	key, err := GenerateRandomString(32) //16,24,32
+	key, err := generateRandomString(32) //16,24,32
 	CheckErrorTest(t, err)
-	text, err := GenerateRandomString(32)
+	text, err := generateRandomString(32)
 	CheckErrorTest(t, err)
 	key2 := []byte(key)
 	text2 := []byte(text)
