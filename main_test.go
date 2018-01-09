@@ -29,6 +29,30 @@ func TestEncryptDecrypt(t *testing.T) {
 	return
 }
 
+func TestShortEncryptDecrypt(t *testing.T) {
+	key := "1a2b3d4d1a2b3d4r" //min length is 16chars
+	text := "abcd"
+
+	key2 := []byte(key)
+	text2 := []byte(text)
+
+	result1, err := encryptText(key2, text2)
+	CheckErrorTest(t, err)
+
+	result2, err := decryptText(key2, result1)
+	CheckErrorTest(t, err)
+
+	text3 := string(result2)
+
+	if text != text3 {
+
+		t.Fatal("Encrypt decrypt test fail")
+	}
+
+	t.Log("Encrypt decrypt test ok")
+	return
+}
+
 func TestGetConfig(t *testing.T) {
 	config := getConfig()
 
