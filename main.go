@@ -19,6 +19,8 @@ import (
 	"github.com/atotto/clipboard"
 )
 
+var version :="1.0"
+
 type Config struct {
 	//Secret key
 	Key       string
@@ -34,12 +36,18 @@ func main() {
 	eCommand := flag.Bool("e", false, "Encrypt files command")
 	dCommand := flag.Bool("d", false, "Decrypt files command")
 	gkCommand := flag.Bool("gk", false, "Generate key command")
+	vCommand := flag.Bool("v", false, "App version")
 
 	//Settings
 	configFileName := flag.String("config", "./config.json", "Config file name include app settings.")
 	fileFindRule := flag.String("find", "", "What find f.e. file1*")
 
 	flag.Parse()
+
+	if *vCommand{
+		fmt.Printf("Version %s \n",version)
+		return
+	}
 
 	if *ccCommand {
 		createConfigFile()
