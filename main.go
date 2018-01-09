@@ -19,7 +19,7 @@ import (
 	"github.com/atotto/clipboard"
 )
 
-var version :="1.0"
+const VERSION = "1.0"
 
 type Config struct {
 	//Secret key
@@ -44,8 +44,8 @@ func main() {
 
 	flag.Parse()
 
-	if *vCommand{
-		fmt.Printf("Version %s \n",version)
+	if *vCommand {
+		fmt.Printf("Version %s \n", VERSION)
 		return
 	}
 
